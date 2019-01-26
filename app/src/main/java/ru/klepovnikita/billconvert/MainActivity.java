@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     String result;
     Button btnConvert;
     TextView textView;
+    TextView intext;
+    TextView outtext;
 
     private static final String TAG = "RESPLOG";
 
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnConvert = (Button) findViewById(R.id.btnConvert);
         textView = (TextView) findViewById(R.id.textView3);
+        intext = (EditText) findViewById(R.id.editText);
+        outtext = (EditText) findViewById(R.id.editText3);
 
         // адаптер
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
@@ -85,38 +90,6 @@ public class MainActivity extends AppCompatActivity {
         OnClickListener oclBtnOk = new OnClickListener() {
            @Override
             public void onClick(View v) {
-                /*Log.d(TAG, "Button click");
-                NetworkService.getInstance()
-                        .getJSONApi()
-                        .getPostWithID(source+ "_" + result)
-                        .enqueue(new Callback<Post>() {
-                            @Override
-                            public void onResponse(@NonNull Call<Post> call, @NonNull Response<Post> response) {
-                                Log.d(TAG, "Response: "+response);
-
-                                Post post = response.body();
-                               // Log.d(TAG, "results: "+post.getResults());
-
-
-                                Map<String, Double> langs = post.getLangs();
-                                Log.d(TAG, "Resp ok"+langs);
-
-                                for (Map.Entry<String, Double> entry : langs.entrySet()) {
-
-                                    textView.append(entry.getKey()+" : "+ entry.getValue()+"\n");
-
-                                }
-
-                               // textView.append(post + "\n");
-                            }
-
-                            @Override
-                            public void onFailure(@NonNull Call<Post> call, @NonNull Throwable t) {
-
-
-                            }
-                        });
-*/
                NetworkService.getInstance()
                        .getJSONApi()
                        .readJsonFromFileUri(source+ "_" + result, "ultra")
@@ -134,8 +107,11 @@ public class MainActivity extends AppCompatActivity {
                                Gson gson = new Gson();
 
                                Log.d(TAG, "jsonString: "+jsonString);
+                               double res = kf*(Double.parseDouble(intext.getText().toString()));
 
+                                outtext.setText(String.format("%.3f", res));
                                Log.i(TAG, String.valueOf(kf));
+
                            }
 
                            @Override
