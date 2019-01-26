@@ -23,7 +23,19 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    String[] data = {"EUR", "USD", "RUB"};
+    String[] data = {"ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
+            "BBD", "BDT","BGN","BHD","BIF","BND","BOB",
+            "BRL","BSD","BTC","BTN","BWP","BYN","BYR",
+            "BZD","CAD","CDF","CHF","CLP","CNY","COP",
+            "CRC","CUP","CVE","CZK","DJF","DKK","DOP",
+            "DZD","EGP","ERN","ETB","EUR","FJD","FKP",
+            "GBP","GEL","GHS","GIP","GMD","GNF","GTQ",
+            "GYD","HKD","HNL","HRK","HTG","HUF","IDR",
+            "ILS","INR","IQD","IRR","ISK","JMD","JOD",
+            "JPY","KES","KGS","KHR","KMF","KPW","KRW",
+            "KWD","KYD","KZT","LAK","LBP","LKR","LRD",
+            "LSL","LVL","LYD","MAD","",
+            "","","","","","","","","","","","","","","","","", "", ""};
     String source;
     String result;
     Button btnConvert;
@@ -39,35 +51,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnConvert = (Button) findViewById(R.id.btnConvert);
         textView = (TextView) findViewById(R.id.textView3);
-        intext = (EditText) findViewById(R.id.editText);
-        outtext = (EditText) findViewById(R.id.editText3);
+        intext = (EditText) findViewById(R.id.sourceValue);
+        outtext = (EditText) findViewById(R.id.resultValue);
 
         // адаптер
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        Spinner spinner = (Spinner) findViewById(R.id.sourceBill);
         spinner.setAdapter(adapter);
-        // заголовок
-        spinner.setPrompt("Title");
-        // выделяем элемент
         spinner.setSelection(2);
         ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        Spinner spinner2 = (Spinner) findViewById(R.id.spinner2);
+        Spinner spinner2 = (Spinner) findViewById(R.id.resultBill);
         spinner2.setAdapter(adapter);
-        // заголовок
-        spinner2.setPrompt("Title");
-        // выделяем элемент
         spinner2.setSelection(0);
-        // устанавливаем обработчик нажатия
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-                // показываем позиция нажатого элемента
-                Toast.makeText(getBaseContext(), "Source = " + data[position], Toast.LENGTH_SHORT).show();
                 source = data[position];
             }
             @Override
@@ -78,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-                // показываем позиция нажатого элемента
-                Toast.makeText(getBaseContext(), "Result = " + data[position], Toast.LENGTH_SHORT).show();
                 result = data[position];
             }
             @Override
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
                            @Override
                            public void onFailure(Call<JsonObject> call, Throwable t) {
-                               textView.append("Error occurred while getting request!");
+                               Toast.makeText(getBaseContext(), "Ошибка при подключении", Toast.LENGTH_SHORT).show();
                                t.printStackTrace();
                            }
                        });

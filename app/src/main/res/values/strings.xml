@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">BillConvert</string>
+    <string name="textSourceConvert">Конвертировать из</string>
+    <string name="textResultConvert">Конвертировать в</string>
+    <string name="textConvertButton">Конвертировать</string>
 </resources>
