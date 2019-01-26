@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         OnClickListener oclBtnOk = new OnClickListener() {
            @Override
             public void onClick(View v) {
-               if (sourceText.getText().toString()=="") {
+               if (sourceText.getText().toString().trim().length() == 0) {
                    Toast.makeText(getBaseContext(), "Не введено исходное значение", Toast.LENGTH_SHORT).show();
                }
                else
