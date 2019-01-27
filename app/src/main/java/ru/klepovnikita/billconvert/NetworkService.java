@@ -1,30 +1,38 @@
 package ru.klepovnikita.billconvert;
 
+import android.content.Context;
+
+import dimitrovskif.smartcache.BasicCaching;
+import dimitrovskif.smartcache.SmartCallFactory;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class NetworkService {
+class NetworkService {
     private static NetworkService mInstance;
     private static final String BASE_URL = "http://free.currencyconverterapi.com";
     private Retrofit mRetrofit;
 
 
-    private NetworkService() {
+    private NetworkService(Context mContext){
+
+        SmartCallFactory smartFactory = new SmartCallFactory(BasicCaching.fromCtx(mContext));
+
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(smartFactory)
                 .build();
-    }
+        }
 
-    public static NetworkService getInstance() {
+    static NetworkService getInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new NetworkService();
+            mInstance = new NetworkService(context);
         }
         return mInstance;
     }
 
-    public CurrencyAPI getJSONApi() {
+    CurrencyAPI getJSONApi() {
         return mRetrofit.create(CurrencyAPI.class);
     }
 

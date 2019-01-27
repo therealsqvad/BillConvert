@@ -52,23 +52,21 @@ public class MainActivity extends AppCompatActivity {
     TextView sourceText, resultText;
     Spinner sourceBillsList, resultBillsList;
 
-    private static final String TAG = "RESPLOG";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
-        btnConvert = (Button) findViewById(R.id.btnConvert);
+        btnConvert = findViewById(R.id.btnConvert);
         sourceText = (EditText) findViewById(R.id.sourceValue);
         resultText = (EditText) findViewById(R.id.resultValue);
-        sourceBillsList = (Spinner) findViewById(R.id.sourceBill);
-        resultBillsList = (Spinner) findViewById(R.id.resultBill);
+        sourceBillsList = findViewById(R.id.sourceBill);
+        resultBillsList = findViewById(R.id.resultBill);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, bills);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bills);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, bills);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bills);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sourceBillsList.setAdapter(adapter);
         sourceBillsList.setSelection(0);
@@ -79,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
                 source = bills[position];
+                if (sourceText.getText().toString().length() != 0) {
+                    getCurrency();
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
@@ -89,13 +90,16 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
                 result = bills[position];
+                if (sourceText.getText().toString().length() != 0) {
+                    getCurrency();
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
-        OnClickListener oclBtnOk = new OnClickListener() {
+        OnClickListener oclBtnConvert = new OnClickListener() {
            @Override
             public void onClick(View v) {
                if (sourceText.getText().toString().length() == 0) {
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
-        btnConvert.setOnClickListener(oclBtnOk);
+        btnConvert.setOnClickListener(oclBtnConvert);
 
         sourceText.addTextChangedListener(new TextWatcher() {
 
@@ -129,27 +133,30 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-
     // функция отправки запроса к API для получения курса
     private void getCurrency() {
-        NetworkService.getInstance()
+        final double[] kf = {-1};
+        NetworkService.getInstance(this)
                 .getJSONApi()
                 .readJsonFromFileUri(source + "_" + result, "ultra")
                 .enqueue(new Callback<JsonObject>() {
                     @Override
                     public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                         try {
+                            // не используем возможность GSON для распарсивания JSON, полученного от сервера
+                            // так как данная API для каждого курса валют формирует JSON типа {"USD_RUB"}, следовательно,
+                            // нам необходимо было бы огромное количество POJO, проще разбирать ответ от сервера как строку
                             String jsonString = response.body().toString();
-                            if (jsonString=="{}") {
+                            if (jsonString=="{}") { // если серверу отправить некорректный запрос, он вернет {}
                                 throw new Exception("Не существует исходной или целевой валюты");
                             }
-                            double kf = Double.parseDouble(  // коэффициент текущего курса
-                                    jsonString.substring(
-                                            jsonString.indexOf(':') + 1,
-                                            jsonString.indexOf('}')
-                                    ));
-                            double res = kf * (Double.parseDouble(sourceText.getText().toString()));
+                            kf[0] = Double.parseDouble(  // коэффициент текущего курса
+                                    jsonString.substring(                  // ответ от сервера вида {"USD_RUB":65.012}
+                                            jsonString.indexOf(':') + 1,    // нас интересует лишь курс, который расположен
+                                            jsonString.indexOf('}')         // между : и }. Пока API существует в том виде,
+                                    ));                                     // в котором существует - нас устраивает данный подход
+                            double res = kf[0] * (Double.parseDouble(sourceText.getText().toString()));
+
                             resultText.setText(String.format("%.3f", res));
                         }
                         catch (Exception e) {
@@ -159,7 +166,16 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<JsonObject> call, Throwable t) {
+                    if(kf[0]==-1) { // логика работы следующая: курс никогда не может быть -1, следовательно это значение
+                                    // "зарезервировано" под некорректное. Так как при использовании закэшированного значения
+                                    // вызывался колбэк и response и failure и сообщение об отсутствии соединения появлялось
+                                    // и при корректном подсчете закэшерованных валют
                         Toast.makeText(getBaseContext(), "Ошибка! Проверьте подключение к сети", Toast.LENGTH_SHORT).show();
+                        resultText.setText("");
+                    }// очищаем поле с результатом, чтобы в случае ошибки, мы не наблюдали соответствия
+                        // корректного значения прошлой валюты, например, запускаем приложение без интернета
+                        // у нас в кэше есть некая валюта (1 USD = 65 RUB), переключаем на EUR и чтобы не увидеть
+                        // 1 EUR = 65 RUB, а в toast сообщение об отсутствии соединения
                         t.printStackTrace();
                     }
                 });
