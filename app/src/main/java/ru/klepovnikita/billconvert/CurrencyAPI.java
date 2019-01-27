@@ -10,3 +10,5 @@ public interface CurrencyAPI {
     @GET("api/v6/convert")
     public Call<JsonObject> readJsonFromFileUri(@Query("q") String bills, @Query("compact") String compact);
 }
+
+

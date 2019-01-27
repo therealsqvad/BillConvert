@@ -2,6 +2,8 @@ package ru.klepovnikita.billconvert;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         OnClickListener oclBtnOk = new OnClickListener() {
            @Override
             public void onClick(View v) {
-               if (sourceText.getText().toString().trim().length() == 0) {
+               if (sourceText.getText().toString().length() == 0) {
                    Toast.makeText(getBaseContext(), "Не введено исходное значение", Toast.LENGTH_SHORT).show();
                }
                else
@@ -107,7 +109,27 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         btnConvert.setOnClickListener(oclBtnOk);
+
+        sourceText.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
+
+            }
+
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if (sourceText.getText().toString().length() != 0 && getCurrentFocus()==sourceText) {
+                    getCurrency();
+                }
+            }
+        });
     }
+
+
 
     // функция отправки запроса к API для получения курса
     private void getCurrency() {

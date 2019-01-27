@@ -3,4 +3,6 @@
     <string name="textSourceConvert">Конвертировать из</string>
     <string name="textResultConvert">Конвертировать в</string>
     <string name="textConvertButton">Конвертировать</string>
+    <string name="editSourceText">Исходная сумма</string>
+    <string name="editResultText">Полученная сумма</string>
 </resources>

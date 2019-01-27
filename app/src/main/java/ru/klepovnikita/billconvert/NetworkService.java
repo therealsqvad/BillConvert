@@ -3,10 +3,12 @@ package ru.klepovnikita.billconvert;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class NetworkService {
     private static NetworkService mInstance;
     private static final String BASE_URL = "http://free.currencyconverterapi.com";
     private Retrofit mRetrofit;
+
 
     private NetworkService() {
         mRetrofit = new Retrofit.Builder()
@@ -25,5 +27,5 @@ public class NetworkService {
     public CurrencyAPI getJSONApi() {
         return mRetrofit.create(CurrencyAPI.class);
     }
-}
 
+}
